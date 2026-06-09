@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
+import { motion, AnimatePresence, useScroll, useTransform, useInView } from 'framer-motion'
 
 export default function Home() {
   const [showLoader, setShowLoader] = useState(true)
@@ -12,7 +12,10 @@ export default function Home() {
         {showLoader ? (
           <LoadingScreen key="loader" onComplete={() => setShowLoader(false)} />
         ) : (
-          <HeroSection key="hero" />
+          <motion.div key="content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+            <HeroSection />
+            <WhereIsGabes />
+          </motion.div>
         )}
       </AnimatePresence>
     </main>
@@ -178,6 +181,178 @@ function HeroSection() {
       <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: loaded ? 1 : 0, x: 0 }} transition={{ duration: 0.8, delay: 2.2 }} className="absolute bottom-8 right-8 md:right-16 z-20 text-right">
         <p className="text-white/50 text-lg md:text-xl italic font-light">who will save them?</p>
       </motion.div>
+    </section>
+  )
+}
+
+/* ──────────────────────────────────────────── */
+/*  WHERE IS GABÈS?                             */
+/* ──────────────────────────────────────────── */
+
+function WhereIsGabes() {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-100px' })
+
+  return (
+    <section ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Dark background with subtle gradient */}
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #060810 40%, #080a12 100%)' }} />
+
+      {/* Subtle grid pattern */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
+        backgroundSize: '60px 60px'
+      }} />
+
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 md:px-12 py-20">
+        {/* Section heading */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="mb-12 md:mb-16"
+        >
+          <span className="text-red-500 text-xs tracking-[0.35em] uppercase font-bold">Locate the Crisis</span>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mt-3 leading-tight">
+            Where is <span className="text-red-500">Gabès</span>?
+          </h2>
+        </motion.div>
+
+        {/* Two-panel layout: wide map + zoomed inset */}
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+          {/* Left: North Africa wide map */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
+            className="relative w-full lg:w-[60%]"
+          >
+            <div className="relative rounded-xl overflow-hidden border border-white/[0.06] shadow-2xl shadow-black/50">
+              <img
+                src="/images/map-north-africa.png"
+                alt="North Africa and the Mediterranean"
+                className="w-full h-auto object-cover"
+                style={{ filter: 'brightness(0.85) contrast(1.1)' }}
+              />
+              {/* Tunisia highlight overlay — a soft red glow over Tunisia's position */}
+              <div
+                className="absolute"
+                style={{
+                  top: '28%',
+                  left: '42%',
+                  width: '12%',
+                  height: '18%',
+                  background: 'radial-gradient(ellipse at center, rgba(220,40,40,0.20) 0%, rgba(220,40,40,0.08) 40%, transparent 70%)',
+                  borderRadius: '50%',
+                }}
+              />
+              {/* "Tunisia" label */}
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.9 }}
+                className="absolute"
+                style={{ top: '22%', left: '40%' }}
+              >
+                <span className="text-white/80 text-[10px] md:text-xs tracking-[0.2em] uppercase font-bold bg-black/40 px-2 py-0.5 rounded">Tunisia</span>
+              </motion.div>
+
+              {/* Connection line from Tunisia to zoomed map */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <motion.line
+                  x1="48" y1="38"
+                  x2="62" y2="55"
+                  stroke="rgba(220,40,40,0.3)"
+                  strokeWidth="0.3"
+                  strokeDasharray="1 1"
+                  initial={{ pathLength: 0 }}
+                  animate={isInView ? { pathLength: 1 } : {}}
+                  transition={{ duration: 1.2, delay: 1.2 }}
+                />
+              </svg>
+            </div>
+          </motion.div>
+
+          {/* Right: Zoomed-in Gabès map + text */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.5, ease: 'easeOut' }}
+            className="relative w-full lg:w-[40%] flex flex-col items-center lg:items-start gap-6"
+          >
+            {/* Zoomed map with pin */}
+            <div className="relative w-full max-w-sm rounded-xl overflow-hidden border border-white/[0.06] shadow-2xl shadow-black/50">
+              <img
+                src="/images/map-gabes-zoom.png"
+                alt="Gulf of Gabès coastline"
+                className="w-full h-auto object-cover"
+                style={{ filter: 'brightness(0.8) contrast(1.15)' }}
+              />
+
+              {/* Red pin on Gabès */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0, y: -20 }}
+                animate={isInView ? { opacity: 1, scale: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: 1.4, type: 'spring', stiffness: 200 }}
+                className="absolute"
+                style={{ top: '38%', left: '45%' }}
+              >
+                {/* Pin drop */}
+                <div className="relative flex flex-col items-center">
+                  <motion.div
+                    animate={{ y: [0, 0], scale: [1, 1] }}
+                    className="relative"
+                  >
+                    {/* Pin head */}
+                    <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-red-600 border-2 border-white shadow-lg shadow-red-600/40 flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white" />
+                    </div>
+                    {/* Pin point */}
+                    <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[7px] border-t-red-600" />
+                  </motion.div>
+                  {/* Pulse ring */}
+                  <motion.div
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-red-500/40"
+                    animate={{ scale: [1, 1.8], opacity: [0.6, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
+                  />
+                </div>
+              </motion.div>
+
+              {/* "Gabès" label next to pin */}
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={isInView ? { opacity: 1, x: 0 } : {}}
+                transition={{ duration: 0.5, delay: 1.8 }}
+                className="absolute"
+                style={{ top: '33%', left: '55%' }}
+              >
+                <span className="text-red-400 text-[10px] md:text-xs font-bold tracking-[0.15em] uppercase bg-black/50 px-2 py-0.5 rounded backdrop-blur-sm">Gabès</span>
+              </motion.div>
+            </div>
+
+            {/* Description text */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 1.0 }}
+              className="max-w-sm"
+            >
+              <p className="text-gray-300 text-sm md:text-base leading-relaxed">
+                Gabès is a coastal city in southeastern Tunisia on the Gulf of Gabès — where the Sahara Desert meets the Mediterranean Sea.
+              </p>
+              <div className="mt-4 flex items-center gap-2">
+                <div className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                <span className="text-white/30 text-[10px] tracking-[0.2em] uppercase">34.4313° N, 10.1839° E</span>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Bottom fade to next section */}
+      <div className="absolute bottom-0 left-0 right-0 h-24" style={{ background: 'linear-gradient(to top, #050508, transparent)' }} />
     </section>
   )
 }
