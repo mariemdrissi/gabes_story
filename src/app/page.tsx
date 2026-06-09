@@ -198,18 +198,23 @@ function WhereIsGabes() {
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} className="relative h-screen overflow-hidden bg-black">
-      {/* Real Leaflet map fills the section */}
-      <div className="absolute inset-0">
+    <section ref={ref} className="relative h-screen overflow-hidden bg-black flex flex-col items-center justify-center">
+      {/* Map constrained to ~70% width, centered */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={isInView ? { opacity: 1, scale: 1 } : {}}
+        transition={{ duration: 1, ease: 'easeOut' }}
+        className="relative w-[85%] md:w-[75%] lg:w-[65%] aspect-[16/9] rounded-2xl overflow-hidden border border-white/[0.04] shadow-2xl shadow-black/60"
+      >
         <GabesMap />
-      </div>
+      </motion.div>
 
-      {/* Small text at the bottom */}
+      {/* Small text below the map */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, delay: 1.5 }}
-        className="absolute bottom-10 md:bottom-16 left-0 right-0 z-[1000] text-center px-6"
+        className="mt-8 text-center px-6 z-10"
       >
         <p className="text-white/50 text-xs md:text-sm lg:text-base leading-relaxed max-w-xl mx-auto">
           Gabès is a coastal city in southeastern Tunisia on the Gulf of Gabès — where the Sahara Desert meets the Mediterranean Sea.
