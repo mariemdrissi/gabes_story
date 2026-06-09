@@ -1,7 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import dynamic from 'next/dynamic'
 import { motion, AnimatePresence, useScroll, useTransform, useInView } from 'framer-motion'
+
+// Dynamic import to avoid SSR issues with Leaflet
+const GabesMap = dynamic(() => import('@/components/map'), { ssr: false })
 
 export default function Home() {
   const [showLoader, setShowLoader] = useState(true)
@@ -194,53 +198,18 @@ function WhereIsGabes() {
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} className="relative h-screen overflow-hidden">
-      {/* Full-screen red land / black ocean map */}
-      <div className="absolute inset-0 bg-black">
-        <img
-          src="/images/map-red-black.png"
-          alt="Mediterranean region"
-          className="w-full h-full object-cover"
-        />
+    <section ref={ref} className="relative h-screen overflow-hidden bg-black">
+      {/* Real Leaflet map fills the section */}
+      <div className="absolute inset-0">
+        <GabesMap />
       </div>
-
-      {/* Red pin on Gabès */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0, y: -30 }}
-        animate={isInView ? { opacity: 1, scale: 1, y: 0 } : {}}
-        transition={{ duration: 0.6, delay: 0.5, type: 'spring', stiffness: 180, damping: 12 }}
-        className="absolute z-20"
-        style={{ top: '52%', left: '40%' }}
-      >
-        <div className="relative flex flex-col items-center">
-          {/* Pin head */}
-          <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-white border-2 border-white shadow-lg shadow-white/40 flex items-center justify-center">
-            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-red-600" />
-          </div>
-          {/* Pin stem */}
-          <div className="w-[2px] h-6 bg-white/90 -mt-px" />
-          {/* Pin point */}
-          <div className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-t-[5px] border-t-white/90 -mt-px" />
-          {/* Pulse rings */}
-          <motion.div
-            className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full border-2 border-white/30"
-            animate={{ scale: [1, 2.2], opacity: [0.5, 0] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut' }}
-          />
-          <motion.div
-            className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full border border-white/15"
-            animate={{ scale: [1, 2.8], opacity: [0.3, 0] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut', delay: 0.8 }}
-          />
-        </div>
-      </motion.div>
 
       {/* Small text at the bottom */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, delay: 1.0 }}
-        className="absolute bottom-10 md:bottom-16 left-0 right-0 z-20 text-center px-6"
+        transition={{ duration: 0.8, delay: 1.5 }}
+        className="absolute bottom-10 md:bottom-16 left-0 right-0 z-[1000] text-center px-6"
       >
         <p className="text-white/50 text-xs md:text-sm lg:text-base leading-relaxed max-w-xl mx-auto">
           Gabès is a coastal city in southeastern Tunisia on the Gulf of Gabès — where the Sahara Desert meets the Mediterranean Sea.
