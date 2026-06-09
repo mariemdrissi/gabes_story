@@ -1,7 +1,7 @@
 'use client'
 
-import { useRef, useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 
 export default function Home() {
   return (
@@ -12,7 +12,7 @@ export default function Home() {
 }
 
 /* ──────────────────────────────────────────── */
-/*  HERO SECTION — Reference Design Style       */
+/*  HERO SECTION — Cork Board + Red Strings     */
 /* ──────────────────────────────────────────── */
 
 function HeroSection() {
@@ -24,59 +24,103 @@ function HeroSection() {
     return () => clearTimeout(timer)
   }, [])
 
+  // Photo positions as percentages within the board area
+  // pinX/pinY = where the pushpin goes (top-center of each polaroid)
   const photos = [
     {
       src: '/images/factory-smoke.png',
-      alt: 'Chemical factory smoke over Gabes',
-      rotation: -6,
-      tapeRotation: 2,
-      x: '0%',
-      y: '0%',
+      alt: 'The factory',
+      rotation: -7,
+      x: 2,
+      y: 3,
+      pinX: 18,
+      pinY: 8,
       z: 7,
     },
     {
       src: '/images/polluted-coast.png',
-      alt: 'Polluted coastline of Gabes',
-      rotation: 4,
-      tapeRotation: -3,
-      x: '28%',
-      y: '-5%',
+      alt: 'The poisoned coast',
+      rotation: 5,
+      x: 35,
+      y: 0,
+      pinX: 52,
+      pinY: 6,
       z: 6,
     },
     {
       src: '/images/oasis-before.png',
-      alt: 'The oasis of Gabes before pollution',
-      rotation: -2,
-      tapeRotation: 1,
-      x: '52%',
-      y: '2%',
+      alt: 'What was lost',
+      rotation: -3,
+      x: 62,
+      y: 5,
+      pinX: 78,
+      pinY: 10,
       z: 5,
     },
     {
       src: '/images/hospital.png',
-      alt: 'Hospital treating pollution victims',
-      rotation: 7,
-      tapeRotation: -1,
-      x: '12%',
-      y: '38%',
+      alt: 'The suffering',
+      rotation: 6,
+      x: 10,
+      y: 44,
+      pinX: 26,
+      pinY: 48,
       z: 4,
     },
     {
       src: '/images/protests.png',
-      alt: 'Community demanding change',
-      rotation: -4,
-      tapeRotation: 3,
-      x: '42%',
-      y: '35%',
+      alt: 'The resistance',
+      rotation: -5,
+      x: 45,
+      y: 40,
+      pinX: 62,
+      pinY: 45,
       z: 3,
+    },
+  ]
+
+  // Red string connections: [fromPhotoIndex, toPhotoIndex]
+  const stringConnections = [
+    [0, 1],
+    [1, 2],
+    [0, 3],
+    [1, 4],
+    [3, 4],
+  ]
+
+  // Note positions (small sticky notes / paper scraps)
+  const notes = [
+    {
+      text: '5M tons/yr',
+      x: 30,
+      y: 30,
+      rotation: 3,
+      color: 'rgba(255,235,150,0.9)',
+      z: 8,
+    },
+    {
+      text: 'Since 1972',
+      x: 72,
+      y: 32,
+      rotation: -2,
+      color: 'rgba(255,200,150,0.9)',
+      z: 8,
+    },
+    {
+      text: '120+ hospitalized',
+      x: 38,
+      y: 62,
+      rotation: 2,
+      color: 'rgba(255,180,180,0.9)',
+      z: 8,
     },
   ]
 
   return (
     <section className="relative w-full h-screen overflow-hidden flex items-center">
-      {/* Dark textured background */}
+      {/* Dark wall background */}
       <div className="absolute inset-0 bg-[#1a1a1a]">
-        {/* Brick/wall texture pattern */}
+        {/* Subtle wall texture */}
         <div
           className="absolute inset-0 opacity-30"
           style={{
@@ -98,23 +142,16 @@ function HeroSection() {
             `,
           }}
         />
-        {/* Spotlight / light cone effect */}
+        {/* Spotlight / light cone on the board */}
         <div
           className="absolute inset-0"
           style={{
-            background: 'radial-gradient(ellipse 60% 50% at 65% 50%, rgba(255,200,100,0.08) 0%, rgba(255,150,50,0.03) 30%, transparent 70%)',
-          }}
-        />
-        {/* Secondary subtle warm glow */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'radial-gradient(ellipse 40% 60% at 62% 48%, rgba(255,100,0,0.04) 0%, transparent 60%)',
+            background: 'radial-gradient(ellipse 55% 55% at 68% 48%, rgba(255,200,100,0.10) 0%, rgba(255,150,50,0.04) 35%, transparent 70%)',
           }}
         />
       </div>
 
-      {/* Top-left logo / label */}
+      {/* Top-left label */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: loaded ? 1 : 0 }}
@@ -139,8 +176,7 @@ function HeroSection() {
       </motion.div>
 
       {/* Left side: Dramatic typography */}
-      <div className="relative z-10 w-full md:w-[55%] pl-8 md:pl-16 lg:pl-24 pr-4">
-        {/* "Story" label */}
+      <div className="relative z-10 w-full md:w-[50%] pl-8 md:pl-16 lg:pl-24 pr-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 20 }}
@@ -151,7 +187,6 @@ function HeroSection() {
           </span>
         </motion.div>
 
-        {/* "Gabes Is" */}
         <motion.h1
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 40 }}
@@ -161,7 +196,6 @@ function HeroSection() {
           Gabes Is
         </motion.h1>
 
-        {/* "Suffocating" — the RED key word */}
         <motion.h1
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 40 }}
@@ -171,7 +205,6 @@ function HeroSection() {
           Suffocating
         </motion.h1>
 
-        {/* Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 20 }}
@@ -182,7 +215,6 @@ function HeroSection() {
           This is the story the world forgot.
         </motion.p>
 
-        {/* Scroll indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: loaded ? 1 : 0 }}
@@ -200,29 +232,117 @@ function HeroSection() {
         </motion.div>
       </div>
 
-      {/* Right side: Photo board with overlapping photos */}
-      <div className="hidden md:block absolute right-0 top-0 w-[55%] lg:w-[50%] h-full z-5">
-        {/* Cork board background shape */}
+      {/* Right side: Cork board with photos, strings, and pushpins */}
+      <div className="hidden md:block absolute right-0 top-0 w-[58%] lg:w-[55%] h-full">
+        {/* Cork board */}
         <div
-          className="absolute rounded-sm"
+          className="absolute rounded-md overflow-hidden shadow-2xl shadow-black/60"
           style={{
-            top: '8%',
-            right: '5%',
-            width: '80%',
-            height: '75%',
-            background: 'linear-gradient(135deg, rgba(180,140,90,0.06) 0%, rgba(120,80,40,0.04) 100%)',
-            border: '1px solid rgba(180,140,90,0.08)',
+            top: '6%',
+            right: '4%',
+            width: '88%',
+            height: '82%',
+            border: '8px solid #3d2b1a',
+            boxShadow: 'inset 0 0 30px rgba(0,0,0,0.3), 0 0 40px rgba(0,0,0,0.5)',
           }}
-        />
+        >
+          {/* Cork texture image */}
+          <img
+            src="/images/cork-board.png"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ filter: 'brightness(0.7) contrast(1.1) saturate(0.8)' }}
+          />
+          {/* Darkening overlay for mood */}
+          <div className="absolute inset-0 bg-black/20" />
+          {/* Warm overhead light gradient */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'radial-gradient(ellipse 70% 50% at 50% 20%, rgba(255,220,150,0.10) 0%, transparent 70%)',
+            }}
+          />
+        </div>
 
-        {/* Overlapping polaroid-style photos */}
+        {/* Red strings connecting photos (SVG) */}
+        <motion.svg
+          initial={{ opacity: 0 }}
+          animate={{ opacity: loaded ? 1 : 0 }}
+          transition={{ duration: 1, delay: 2.5 }}
+          className="absolute pointer-events-none"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          style={{
+            top: '6%',
+            right: '4%',
+            width: '88%',
+            height: '82%',
+            zIndex: 2,
+          }}
+        >
+          {stringConnections.map(([from, to], i) => {
+            const p1 = photos[from]
+            const p2 = photos[to]
+            // Slight curve for organic string feel
+            const midX = (p1.pinX + p2.pinX) / 2 + (i % 2 === 0 ? 2 : -2)
+            const midY = (p1.pinY + p2.pinY) / 2 + 3
+            return (
+              <path
+                key={i}
+                d={`M ${p1.pinX} ${p1.pinY} Q ${midX} ${midY} ${p2.pinX} ${p2.pinY}`}
+                fill="none"
+                stroke="#cc2222"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                opacity="0.7"
+              />
+            )
+          })}
+        </motion.svg>
+
+        {/* Small sticky notes / paper scraps */}
+        {notes.map((note, i) => (
+          <motion.div
+            key={`note-${i}`}
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: loaded ? 1 : 0, scale: loaded ? 1 : 0.7 }}
+            transition={{ duration: 0.5, delay: 2.0 + i * 0.1 }}
+            className="absolute"
+            style={{
+              left: `${note.x}%`,
+              top: `${note.y}%`,
+              zIndex: note.z,
+              transform: `rotate(${note.rotation}deg)`,
+            }}
+          >
+            <div
+              className="px-3 py-1.5 shadow-md shadow-black/30"
+              style={{
+                backgroundColor: note.color,
+                boxShadow: '2px 2px 6px rgba(0,0,0,0.3)',
+              }}
+            >
+              <p className="text-[10px] font-bold text-gray-800 whitespace-nowrap">{note.text}</p>
+            </div>
+            {/* Mini pushpin on note */}
+            <div
+              className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full"
+              style={{
+                background: 'radial-gradient(circle at 35% 35%, #666, #222)',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.5)',
+              }}
+            />
+          </motion.div>
+        ))}
+
+        {/* Polaroid photos with pushpins */}
         {photos.map((photo, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, scale: 0.8, rotate: 0 }}
+            initial={{ opacity: 0, scale: 0.7, rotate: 0 }}
             animate={{
               opacity: loaded ? 1 : 0,
-              scale: loaded ? (hoveredPhoto === i ? 1.08 : 1) : 0.8,
+              scale: loaded ? (hoveredPhoto === i ? 1.06 : 1) : 0.7,
               rotate: loaded ? photo.rotation : 0,
             }}
             transition={{
@@ -234,16 +354,17 @@ function HeroSection() {
             onMouseLeave={() => setHoveredPhoto(null)}
             className="absolute cursor-pointer"
             style={{
-              left: photo.x,
-              top: photo.y,
+              left: `${photo.x}%`,
+              top: `${photo.y}%`,
               zIndex: photo.z,
-              width: '42%',
+              width: '32%',
             }}
           >
             {/* Polaroid frame */}
-            <div className="bg-[#f5f0e8] p-1.5 pb-6 shadow-xl shadow-black/40"
-              style={{ 
-                transform: `rotate(${photo.rotation}deg)`,
+            <div
+              className="bg-[#f5f0e8] p-1.5 pb-5"
+              style={{
+                boxShadow: '3px 3px 10px rgba(0,0,0,0.5), -1px -1px 3px rgba(0,0,0,0.1)',
               }}
             >
               <div className="relative overflow-hidden aspect-[4/3]">
@@ -252,27 +373,48 @@ function HeroSection() {
                   alt={photo.alt}
                   className="w-full h-full object-cover"
                   style={{
-                    filter: hoveredPhoto === i ? 'sepia(20%) contrast(1.1)' : 'sepia(40%) contrast(0.9) brightness(0.85)',
+                    filter: hoveredPhoto === i
+                      ? 'sepia(20%) contrast(1.05) brightness(0.9)'
+                      : 'sepia(35%) contrast(0.9) brightness(0.8)',
                     transition: 'filter 0.3s ease',
                   }}
                 />
               </div>
-              {/* Polaroid caption area */}
-              <div className="pt-1 px-1">
-                <p className="text-[9px] text-[#8b7355] font-medium tracking-wide text-center truncate">
-                  {photo.alt}
-                </p>
-              </div>
+              {/* Caption */}
+              <p className="text-[8px] text-[#6b5a42] font-medium tracking-wide text-center mt-1 truncate">
+                {photo.alt}
+              </p>
             </div>
 
-            {/* Tape/pin effect on top */}
+            {/* Pushpin */}
             <div
-              className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-3 rounded-sm opacity-40"
+              className="absolute"
               style={{
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.3), rgba(200,180,150,0.2))',
-                transform: `translateX(-50%) rotate(${photo.tapeRotation}deg)`,
+                top: '-6px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 10,
               }}
-            />
+            >
+              {/* Pin head */}
+              <div
+                className="w-4 h-4 rounded-full"
+                style={{
+                  background: 'radial-gradient(circle at 35% 35%, #e04040, #8b1a1a)',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(0,0,0,0.3)',
+                }}
+              />
+              {/* Pin point (metal part) */}
+              <div
+                className="mx-auto"
+                style={{
+                  width: '2px',
+                  height: '6px',
+                  background: 'linear-gradient(180deg, #999, #666)',
+                  marginTop: '-1px',
+                }}
+              />
+            </div>
           </motion.div>
         ))}
       </div>
