@@ -1,13 +1,146 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export default function Home() {
+  const [showLoader, setShowLoader] = useState(true)
+
   return (
-    <main className="bg-[#1a1a1a] text-white overflow-x-hidden min-h-screen">
-      <HeroSection />
+    <main className="bg-[#0a0a0a] text-white overflow-x-hidden min-h-screen">
+      <AnimatePresence mode="wait">
+        {showLoader ? (
+          <LoadingScreen key="loader" onComplete={() => setShowLoader(false)} />
+        ) : (
+          <HeroSection key="hero" />
+        )}
+      </AnimatePresence>
     </main>
+  )
+}
+
+/* ──────────────────────────────────────────── */
+/*  LOADING SCREEN — Gas Mask Logo              */
+/* ──────────────────────────────────────────── */
+
+function LoadingScreen({ onComplete }: { onComplete: () => void }) {
+  const [phase, setPhase] = useState(0) // 0=entering, 1=showing, 2=exiting
+
+  useEffect(() => {
+    // Phase 0: Logo fades in (0-800ms)
+    const t1 = setTimeout(() => setPhase(1), 800)
+    // Phase 1: Logo holds, breathing glow (800-3200ms)
+    const t2 = setTimeout(() => setPhase(2), 3200)
+    // Phase 2: Fade out and transition to hero (3200-4200ms)
+    const t3 = setTimeout(() => onComplete(), 4200)
+
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
+    }
+  }, [onComplete])
+
+  return (
+    <motion.div
+      key="loader"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0a0a0a]"
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.8, ease: 'easeInOut' }}
+    >
+      {/* Ambient background glow */}
+      <motion.div
+        className="absolute inset-0"
+        animate={{
+          background: phase >= 1
+            ? [
+                'radial-gradient(ellipse 40% 40% at 50% 45%, rgba(200,30,30,0.06) 0%, transparent 70%)',
+                'radial-gradient(ellipse 45% 45% at 50% 45%, rgba(200,30,30,0.10) 0%, transparent 70%)',
+                'radial-gradient(ellipse 40% 40% at 50% 45%, rgba(200,30,30,0.06) 0%, transparent 70%)',
+              ]
+            : ['radial-gradient(ellipse 30% 30% at 50% 45%, rgba(200,30,30,0.03) 0%, transparent 70%)'],
+        }}
+        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      {/* Logo container */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{
+          opacity: phase === 0 ? 0 : phase === 2 ? 0 : 1,
+          scale: phase === 0 ? 0.8 : phase === 2 ? 1.05 : 1,
+        }}
+        transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="relative"
+      >
+        {/* Outer ring pulse */}
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          animate={{
+            boxShadow: phase >= 1
+              ? [
+                  '0 0 40px rgba(200,30,30,0.1), 0 0 80px rgba(200,30,30,0.05)',
+                  '0 0 60px rgba(200,30,30,0.2), 0 0 120px rgba(200,30,30,0.08)',
+                  '0 0 40px rgba(200,30,30,0.1), 0 0 80px rgba(200,30,30,0.05)',
+                ]
+              : ['0 0 20px rgba(200,30,30,0.05)'],
+          }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ margin: '-20px', padding: '20px' }}
+        />
+
+        {/* The logo image */}
+        <div className="w-40 h-40 md:w-52 md:h-52 lg:w-60 lg:h-60 relative">
+          <img
+            src="/images/logo.jpg"
+            alt="Stop Pollution"
+            className="w-full h-full object-contain rounded-full"
+          />
+        </div>
+      </motion.div>
+
+      {/* Text below logo */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{
+          opacity: phase === 0 ? 0 : phase === 2 ? 0 : 1,
+          y: phase === 0 ? 15 : 0,
+        }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="mt-8 text-center"
+      >
+        <p className="text-white/50 text-xs tracking-[0.4em] uppercase font-medium">
+          Stop Pollution
+        </p>
+        <p className="text-white/30 text-xs tracking-[0.3em] mt-1" dir="rtl">
+          قف التلوث
+        </p>
+      </motion.div>
+
+      {/* Loading bar */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: phase === 2 ? 0 : 0.5 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+        className="mt-10 w-32 h-px bg-white/10 rounded-full overflow-hidden"
+      >
+        <motion.div
+          className="h-full bg-red-600 rounded-full"
+          initial={{ width: '0%' }}
+          animate={{ width: '100%' }}
+          transition={{ duration: 2.8, delay: 0.3, ease: 'easeInOut' }}
+        />
+      </motion.div>
+
+      {/* Scanline effect overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)',
+        }}
+      />
+    </motion.div>
   )
 }
 
@@ -24,8 +157,6 @@ function HeroSection() {
     return () => clearTimeout(timer)
   }, [])
 
-  // Photo positions as percentages within the board area
-  // pinX/pinY = where the pushpin goes (top-center of each polaroid)
   const photos = [
     {
       src: '/images/factory-smoke.png',
@@ -79,7 +210,6 @@ function HeroSection() {
     },
   ]
 
-  // Red string connections: [fromPhotoIndex, toPhotoIndex]
   const stringConnections = [
     [0, 1],
     [1, 2],
@@ -88,7 +218,6 @@ function HeroSection() {
     [3, 4],
   ]
 
-  // Note positions (small sticky notes / paper scraps)
   const notes = [
     {
       text: '5M tons/yr',
@@ -117,10 +246,14 @@ function HeroSection() {
   ]
 
   return (
-    <section className="relative w-full h-screen overflow-hidden flex items-center">
+    <motion.section
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8, ease: 'easeOut' }}
+      className="relative w-full h-screen overflow-hidden flex items-center"
+    >
       {/* Dark wall background */}
       <div className="absolute inset-0 bg-[#1a1a1a]">
-        {/* Subtle wall texture */}
         <div
           className="absolute inset-0 opacity-30"
           style={{
@@ -142,7 +275,6 @@ function HeroSection() {
             `,
           }}
         />
-        {/* Spotlight / light cone on the board */}
         <div
           className="absolute inset-0"
           style={{
@@ -246,16 +378,13 @@ function HeroSection() {
             boxShadow: 'inset 0 0 30px rgba(0,0,0,0.3), 0 0 40px rgba(0,0,0,0.5)',
           }}
         >
-          {/* Cork texture image */}
           <img
             src="/images/cork-board.png"
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
             style={{ filter: 'brightness(0.7) contrast(1.1) saturate(0.8)' }}
           />
-          {/* Darkening overlay for mood */}
           <div className="absolute inset-0 bg-black/20" />
-          {/* Warm overhead light gradient */}
           <div
             className="absolute inset-0"
             style={{
@@ -283,7 +412,6 @@ function HeroSection() {
           {stringConnections.map(([from, to], i) => {
             const p1 = photos[from]
             const p2 = photos[to]
-            // Slight curve for organic string feel
             const midX = (p1.pinX + p2.pinX) / 2 + (i % 2 === 0 ? 2 : -2)
             const midY = (p1.pinY + p2.pinY) / 2 + 3
             return (
@@ -300,7 +428,7 @@ function HeroSection() {
           })}
         </motion.svg>
 
-        {/* Small sticky notes / paper scraps */}
+        {/* Small sticky notes */}
         {notes.map((note, i) => (
           <motion.div
             key={`note-${i}`}
@@ -324,7 +452,6 @@ function HeroSection() {
             >
               <p className="text-[10px] font-bold text-gray-800 whitespace-nowrap">{note.text}</p>
             </div>
-            {/* Mini pushpin on note */}
             <div
               className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full"
               style={{
@@ -360,7 +487,6 @@ function HeroSection() {
               width: '32%',
             }}
           >
-            {/* Polaroid frame */}
             <div
               className="bg-[#f5f0e8] p-1.5 pb-5"
               style={{
@@ -380,7 +506,6 @@ function HeroSection() {
                   }}
                 />
               </div>
-              {/* Caption */}
               <p className="text-[8px] text-[#6b5a42] font-medium tracking-wide text-center mt-1 truncate">
                 {photo.alt}
               </p>
@@ -396,7 +521,6 @@ function HeroSection() {
                 zIndex: 10,
               }}
             >
-              {/* Pin head */}
               <div
                 className="w-4 h-4 rounded-full"
                 style={{
@@ -404,7 +528,6 @@ function HeroSection() {
                   boxShadow: '0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(0,0,0,0.3)',
                 }}
               />
-              {/* Pin point (metal part) */}
               <div
                 className="mx-auto"
                 style={{
@@ -430,6 +553,6 @@ function HeroSection() {
           who will save them?
         </p>
       </motion.div>
-    </section>
+    </motion.section>
   )
 }
