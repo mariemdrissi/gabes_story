@@ -31,8 +31,8 @@ export default function GabesMap() {
     if (!ref.current || mapRef.current) return
 
     const map = L.map(ref.current, {
-      center: [33.8863, 10.1028],
-      zoom: 5,
+      center: [33.8863, 15],
+      zoom: 4,
       zoomControl: false,
       attributionControl: false,
       scrollWheelZoom: false,
@@ -82,7 +82,7 @@ export default function GabesMap() {
 
     // Fly to Gabès after a delay
     const timer = setTimeout(() => {
-      map.flyTo([33.8863, 10.1028], 7, {
+      map.flyTo([33.8863, 10.1028], 6, {
         duration: 2.5,
         easeLinearity: 0.25,
       })
@@ -97,6 +97,6 @@ export default function GabesMap() {
   }, [])
 
   return (
-    <div ref={ref} className="w-full h-full" />
+    <div ref={ref} className="w-full h-full" style={{ opacity: 0.45 }} />
   )
 }
