@@ -195,42 +195,41 @@ function WhereIsGabes() {
 
   return (
     <section ref={ref} className="relative h-screen overflow-hidden">
-      {/* Full-screen dark silhouette map */}
-      <div className="absolute inset-0">
+      {/* Full-screen red land / black ocean map */}
+      <div className="absolute inset-0 bg-black">
         <img
-          src="/images/map-silhouette.png"
+          src="/images/map-red-black.png"
           alt="Mediterranean region"
           className="w-full h-full object-cover"
-          style={{ filter: 'brightness(0.55) contrast(1.2) saturate(0.3)' }}
         />
-        {/* Vignette overlay for depth */}
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 60% at 50% 50%, transparent 30%, rgba(5,5,8,0.7) 100%)' }} />
       </div>
 
-      {/* Red pin on Tunisia/Gabès */}
+      {/* Red pin on Gabès */}
       <motion.div
         initial={{ opacity: 0, scale: 0, y: -30 }}
         animate={isInView ? { opacity: 1, scale: 1, y: 0 } : {}}
         transition={{ duration: 0.6, delay: 0.5, type: 'spring', stiffness: 180, damping: 12 }}
         className="absolute z-20"
-        style={{ top: '36%', left: '47%' }}
+        style={{ top: '52%', left: '40%' }}
       >
         <div className="relative flex flex-col items-center">
           {/* Pin head */}
-          <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-red-600 border-2 border-white shadow-lg shadow-red-600/50 flex items-center justify-center">
-            <div className="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-white" />
+          <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-white border-2 border-white shadow-lg shadow-white/40 flex items-center justify-center">
+            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-red-600" />
           </div>
           {/* Pin stem */}
-          <div className="w-[2px] h-5 bg-white/80 -mt-px" />
-          {/* Pulse ring */}
+          <div className="w-[2px] h-6 bg-white/90 -mt-px" />
+          {/* Pin point */}
+          <div className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-t-[5px] border-t-white/90 -mt-px" />
+          {/* Pulse rings */}
           <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full border-2 border-red-500/30"
-            animate={{ scale: [1, 2], opacity: [0.5, 0] }}
+            className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full border-2 border-white/30"
+            animate={{ scale: [1, 2.2], opacity: [0.5, 0] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut' }}
           />
           <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full border border-red-500/20"
-            animate={{ scale: [1, 2.5], opacity: [0.3, 0] }}
+            className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full border border-white/15"
+            animate={{ scale: [1, 2.8], opacity: [0.3, 0] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut', delay: 0.8 }}
           />
         </div>
