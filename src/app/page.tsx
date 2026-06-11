@@ -198,27 +198,78 @@ function WhereIsGabes() {
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} className="relative h-screen overflow-hidden bg-black flex flex-col items-center justify-center">
-      {/* Map constrained to ~70% width, centered */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={isInView ? { opacity: 1, scale: 1 } : {}}
-        transition={{ duration: 1, ease: 'easeOut' }}
-        className="relative w-[85%] md:w-[75%] lg:w-[65%] aspect-[16/9] rounded-2xl overflow-hidden border border-white/[0.04] shadow-2xl shadow-black/60"
-      >
-        <GabesMap />
-      </motion.div>
+    <section ref={ref} className="relative h-screen overflow-hidden bg-[#050508] flex items-center">
+      {/* Starfield background */}
+      <div className="absolute inset-0" style={{
+        backgroundImage: 'radial-gradient(1px 1px at 8% 15%, rgba(255,255,255,0.15), transparent), radial-gradient(1px 1px at 22% 65%, rgba(255,255,255,0.12), transparent), radial-gradient(1px 1px at 45% 25%, rgba(255,255,255,0.18), transparent), radial-gradient(1px 1px at 60% 80%, rgba(255,255,255,0.10), transparent), radial-gradient(1px 1px at 78% 35%, rgba(255,255,255,0.14), transparent), radial-gradient(1.5px 1.5px at 15% 85%, rgba(255,255,255,0.08), transparent), radial-gradient(1px 1px at 88% 70%, rgba(255,255,255,0.12), transparent), radial-gradient(1px 1px at 35% 45%, rgba(255,255,255,0.10), transparent), radial-gradient(1px 1px at 55% 10%, rgba(255,255,255,0.16), transparent), radial-gradient(1px 1px at 70% 55%, rgba(255,255,255,0.08), transparent), radial-gradient(1px 1px at 92% 20%, rgba(255,255,255,0.10), transparent), radial-gradient(1px 1px at 5% 50%, rgba(255,255,255,0.12), transparent)'
+      }} />
 
-      {/* Small text below the map */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, delay: 1.5 }}
-        className="mt-8 text-center px-6 z-10"
-      >
-        <p className="text-white/50 text-xs md:text-sm lg:text-base leading-relaxed max-w-xl mx-auto">
+      {/* Left side: Text content */}
+      <div className="relative z-10 w-full md:w-[42%] pl-8 md:pl-16 lg:pl-24 pr-4 md:pr-0">
+        <motion.span
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="inline-block text-red-500 text-xs tracking-[0.35em] uppercase font-bold mb-4"
+        >
+          Locate the Crisis
+        </motion.span>
+
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="text-5xl md:text-6xl lg:text-7xl font-black leading-[0.95] tracking-tight text-white"
+        >
+          Where is<br /><span className="text-red-600">Gabès</span>?
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="text-gray-400 text-sm md:text-base leading-relaxed mt-6 max-w-sm"
+        >
           Gabès is a coastal city in southeastern Tunisia on the Gulf of Gabès — where the Sahara Desert meets the Mediterranean Sea.
-        </p>
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 1.1 }}
+          className="mt-6 flex items-center gap-2"
+        >
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+          <span className="text-white/30 text-[10px] tracking-[0.2em] uppercase">33.8863° N, 10.1028° E</span>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.8, delay: 1.4 }}
+          className="mt-8 w-12 h-px bg-white/10"
+        />
+
+        <motion.p
+          initial={{ opacity: 0, y: 15 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 1.6 }}
+          className="text-gray-500 text-xs leading-relaxed mt-4 max-w-xs"
+        >
+          Once known for its rare coastal oasis, Gabès now sits at the epicenter of an environmental catastrophe that has gone unchecked for over five decades.
+        </motion.p>
+      </div>
+
+      {/* Right side: Interactive map */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={isInView ? { opacity: 1, scale: 1 } : {}}
+        transition={{ duration: 1.2, delay: 0.4, ease: 'easeOut' }}
+        className="hidden md:block absolute right-0 top-0 w-[58%] lg:w-[60%] h-full"
+      >
+        <div className="absolute rounded-2xl overflow-hidden border border-white/[0.04] shadow-2xl shadow-black/60" style={{ top: '8%', right: '4%', width: '90%', height: '84%' }}>
+          <GabesMap />
+        </div>
       </motion.div>
     </section>
   )
