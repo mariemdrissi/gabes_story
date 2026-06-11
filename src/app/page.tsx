@@ -2,11 +2,30 @@
 
 import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
-import { motion, AnimatePresence, useScroll, useTransform, useInView } from 'framer-motion'
+import { motion, AnimatePresence, useInView } from 'framer-motion'
 
-// Dynamic imports to avoid SSR issues
-const GabesMap = dynamic(() => import('@/components/map'), { ssr: false })
-const GlobeScene = dynamic(() => import('@/components/globe'), { ssr: false })
+// Dynamic import to avoid SSR issues with Three.js
+const GlobeScene = dynamic(() => import('@/components/globe'), {
+  ssr: false,
+  loading: () => (
+    <div style={{
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <div style={{
+        width: 50,
+        height: 50,
+        border: '2px solid rgba(239,68,68,0.3)',
+        borderTopColor: '#ef4444',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite',
+      }} />
+    </div>
+  ),
+})
 
 export default function Home() {
   const [showLoader, setShowLoader] = useState(true)
@@ -262,16 +281,9 @@ function WhereIsGabes() {
       </div>
 
       {/* Right side: 3D Globe */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={isInView ? { opacity: 1, scale: 1 } : {}}
-        transition={{ duration: 1.2, delay: 0.4, ease: 'easeOut' }}
-        className="hidden md:block absolute right-0 top-0 w-[58%] lg:w-[60%] h-full"
-      >
-        <div className="absolute" style={{ top: '5%', right: '2%', width: '96%', height: '90%' }}>
-          <GlobeScene />
-        </div>
-      </motion.div>
+      <div className="absolute right-0 top-0 w-[55%] lg:w-[58%] h-full">
+        <GlobeScene />
+      </div>
     </section>
   )
 }
