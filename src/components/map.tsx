@@ -80,16 +80,25 @@ export default function GabesMap() {
 
     mapRef.current = map
 
-    // Fly to Gabès after a delay
-    const timer = setTimeout(() => {
-      map.flyTo([33.8863, 10.1028], 6, {
-        duration: 2.5,
-        easeLinearity: 0.25,
-      })
-    }, 1500)
+    // Multi-step zoom: Mediterranean → North Africa → Tunisia → Gabès
+    const steps = [
+      { center: [33.8863, 10.1028] as [number, number], zoom: 5, delay: 1500, duration: 2.5 },
+      { center: [33.8863, 10.1028] as [number, number], zoom: 7, delay: 4500, duration: 2 },
+      { center: [33.8863, 10.1028] as [number, number], zoom: 10, delay: 7000, duration: 2.5 },
+      { center: [33.8863, 10.1028] as [number, number], zoom: 13, delay: 10000, duration: 2 },
+    ]
+
+    const timers = steps.map((step) =>
+      setTimeout(() => {
+        map.flyTo(step.center, step.zoom, {
+          duration: step.duration,
+          easeLinearity: 0.25,
+        })
+      }, step.delay)
+    )
 
     return () => {
-      clearTimeout(timer)
+      timers.forEach(clearTimeout)
       map.remove()
       mapRef.current = null
       styleEl.remove()
