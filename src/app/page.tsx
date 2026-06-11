@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 
-// Dynamic import to avoid SSR issues with Three.js
-const GlobeScene = dynamic(() => import('@/components/globe'), {
+// Dynamic import to avoid SSR issues with Leaflet
+const GabesMap = dynamic(() => import('@/components/map'), {
   ssr: false,
   loading: () => (
     <div style={{
@@ -16,8 +16,8 @@ const GlobeScene = dynamic(() => import('@/components/globe'), {
       justifyContent: 'center',
     }}>
       <div style={{
-        width: 50,
-        height: 50,
+        width: 40,
+        height: 40,
         border: '2px solid rgba(239,68,68,0.3)',
         borderTopColor: '#ef4444',
         borderRadius: '50%',
@@ -280,9 +280,9 @@ function WhereIsGabes() {
         </motion.p>
       </div>
 
-      {/* Right side: 3D Globe */}
+      {/* Right side: Leaflet Map */}
       <div className="absolute right-0 top-0 w-[55%] lg:w-[58%] h-full">
-        <GlobeScene />
+        <GabesMap />
       </div>
     </section>
   )
