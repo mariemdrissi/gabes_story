@@ -4,8 +4,9 @@ import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import { motion, AnimatePresence, useScroll, useTransform, useInView } from 'framer-motion'
 
-// Dynamic import to avoid SSR issues with Leaflet
+// Dynamic imports to avoid SSR issues
 const GabesMap = dynamic(() => import('@/components/map'), { ssr: false })
+const GlobeScene = dynamic(() => import('@/components/globe'), { ssr: false })
 
 export default function Home() {
   const [showLoader, setShowLoader] = useState(true)
@@ -260,15 +261,15 @@ function WhereIsGabes() {
         </motion.p>
       </div>
 
-      {/* Right side: Interactive map */}
+      {/* Right side: 3D Globe */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={isInView ? { opacity: 1, scale: 1 } : {}}
         transition={{ duration: 1.2, delay: 0.4, ease: 'easeOut' }}
         className="hidden md:block absolute right-0 top-0 w-[58%] lg:w-[60%] h-full"
       >
-        <div className="absolute rounded-2xl overflow-hidden border border-white/[0.04] shadow-2xl shadow-black/60" style={{ top: '8%', right: '4%', width: '90%', height: '84%' }}>
-          <GabesMap />
+        <div className="absolute" style={{ top: '5%', right: '2%', width: '96%', height: '90%' }}>
+          <GlobeScene />
         </div>
       </motion.div>
     </section>
