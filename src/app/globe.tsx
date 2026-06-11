@@ -1,7 +1,6 @@
 'use client'
 
-import { useRef, useEffect, useState, useMemo } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { useRef, useEffect } from 'react'
 import * as THREE from 'three'
 
 /* ──────────────────────────────────────────── */
@@ -22,35 +21,29 @@ function createEarthTexture(): THREE.CanvasTexture {
   canvas.height = h
   const ctx = canvas.getContext('2d')!
 
-  // Deep dark ocean with slight blue tint for depth
+  // Deep dark ocean with slight blue tint
   const oceanGrad = ctx.createLinearGradient(0, 0, 0, h)
-  oceanGrad.addColorStop(0, '#040410')
-  oceanGrad.addColorStop(0.5, '#060614')
-  oceanGrad.addColorStop(1, '#040410')
+  oceanGrad.addColorStop(0, '#060612')
+  oceanGrad.addColorStop(0.5, '#080818')
+  oceanGrad.addColorStop(1, '#060612')
   ctx.fillStyle = oceanGrad
   ctx.fillRect(0, 0, w, h)
 
-  // Subtle ocean grid lines for depth
-  ctx.strokeStyle = 'rgba(80, 60, 120, 0.06)'
+  // Subtle ocean grid for depth
+  ctx.strokeStyle = 'rgba(80, 60, 120, 0.05)'
   ctx.lineWidth = 0.5
   for (let x = 0; x < w; x += 64) {
-    ctx.beginPath()
-    ctx.moveTo(x, 0)
-    ctx.lineTo(x, h)
-    ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke()
   }
   for (let y = 0; y < h; y += 64) {
-    ctx.beginPath()
-    ctx.moveTo(0, y)
-    ctx.lineTo(w, y)
-    ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke()
   }
 
-  // Land colors — brighter for visibility
-  const land = '#6b2020'       // Dark crimson (much brighter than before)
-  const landMid = '#7a2828'    // Medium crimson
-  const landLight = '#8a3535'  // Lighter for deserts/highlands
-  const landGreen = '#2a4a2a'  // Subtle green for forests
+  // Land colors
+  const land = '#7a2a2a'
+  const landMid = '#8a3535'
+  const landLight = '#9a4545'
+  const landGreen = '#2d5a2d'
 
   function drawLand(points: number[][], color?: string) {
     ctx.fillStyle = color || land
@@ -67,9 +60,9 @@ function createEarthTexture(): THREE.CanvasTexture {
     ctx.fill()
   }
 
-  function drawCoastline(points: number[][], color?: string) {
-    ctx.strokeStyle = color || 'rgba(239, 68, 68, 0.25)'
-    ctx.lineWidth = 1.5
+  function drawCoastline(points: number[][]) {
+    ctx.strokeStyle = 'rgba(239, 68, 68, 0.3)'
+    ctx.lineWidth = 1.8
     ctx.beginPath()
     ctx.moveTo(points[0][0], points[0][1])
     for (let i = 1; i < points.length; i++) {
@@ -83,29 +76,27 @@ function createEarthTexture(): THREE.CanvasTexture {
     ctx.stroke()
   }
 
-  function drawRegion(points: number[][], fillColor: string, strokeColor?: string) {
+  function drawRegion(points: number[][], fillColor: string) {
     drawLand(points, fillColor)
-    drawCoastline(points, strokeColor)
+    drawCoastline(points)
   }
 
   // Africa
-  const africaPts = [[1060,280],[1085,255],[1110,265],[1130,255],[1150,275],[1165,310],[1175,360],[1185,410],[1180,460],[1170,510],[1155,555],[1130,585],[1110,600],[1090,590],[1070,560],[1050,510],[1035,460],[1025,410],[1020,360],[1030,320],[1040,295]]
-  drawRegion(africaPts, land)
-  // North Africa (desert tone)
-  const nAfricaPts = [[960,270],[980,260],[1020,265],[1060,280],[1100,275],[1140,270],[1170,280],[1200,290],[1170,300],[1130,295],[1090,290],[1050,295],[1010,290],[980,285],[960,280]]
-  drawRegion(nAfricaPts, landLight)
-  // Tunisia (BRIGHT to stand out)
+  drawRegion([[1060,280],[1085,255],[1110,265],[1130,255],[1150,275],[1165,310],[1175,360],[1185,410],[1180,460],[1170,510],[1155,555],[1130,585],[1110,600],[1090,590],[1070,560],[1050,510],[1035,460],[1025,410],[1020,360],[1030,320],[1040,295]], land)
+  // North Africa
+  drawRegion([[960,270],[980,260],[1020,265],[1060,280],[1100,275],[1140,270],[1170,280],[1200,290],[1170,300],[1130,295],[1090,290],[1050,295],[1010,290],[980,285],[960,280]], landLight)
+  // Tunisia — BRIGHT
   const tunisiaPts = [[1080,268],[1095,258],[1110,262],[1115,272],[1105,280],[1090,282],[1078,278]]
-  drawRegion(tunisiaPts, '#cc3333', 'rgba(239, 68, 68, 0.6)')
+  drawRegion(tunisiaPts, '#dd3838')
 
-  // Tunisia inner glow
-  const tCenterX = tunisiaPts.reduce((s, p) => s + p[0], 0) / tunisiaPts.length
-  const tCenterY = tunisiaPts.reduce((s, p) => s + p[1], 0) / tunisiaPts.length
-  const tGlow = ctx.createRadialGradient(tCenterX, tCenterY, 5, tCenterX, tCenterY, 35)
-  tGlow.addColorStop(0, 'rgba(239, 68, 68, 0.4)')
+  // Tunisia glow
+  const tCX = tunisiaPts.reduce((s, p) => s + p[0], 0) / tunisiaPts.length
+  const tCY = tunisiaPts.reduce((s, p) => s + p[1], 0) / tunisiaPts.length
+  const tGlow = ctx.createRadialGradient(tCX, tCY, 5, tCX, tCY, 40)
+  tGlow.addColorStop(0, 'rgba(239, 68, 68, 0.5)')
   tGlow.addColorStop(1, 'rgba(239, 68, 68, 0)')
   ctx.fillStyle = tGlow
-  ctx.fillRect(tCenterX - 40, tCenterY - 40, 80, 80)
+  ctx.fillRect(tCX - 50, tCY - 50, 100, 100)
 
   // Europe
   drawRegion([[1010,175],[1030,165],[1055,155],[1080,160],[1105,170],[1120,190],[1115,215],[1100,235],[1080,248],[1055,252],[1035,245],[1020,230],[1005,210],[1000,190]], landGreen)
@@ -140,7 +131,7 @@ function createEarthTexture(): THREE.CanvasTexture {
   // Australia
   drawRegion([[1535,465],[1575,445],[1630,455],[1665,485],[1668,525],[1650,558],[1610,570],[1565,555],[1540,520],[1530,490]], landMid)
 
-  // Subtle noise grain
+  // Noise grain
   const imageData = ctx.getImageData(0, 0, w, h)
   const d = imageData.data
   for (let i = 0; i < d.length; i += 4) {
@@ -151,11 +142,11 @@ function createEarthTexture(): THREE.CanvasTexture {
   }
   ctx.putImageData(imageData, 0, 0)
 
-  // Gabès marker (equirectangular projection)
+  // Gabès marker
   const gabesX = ((GABES_LNG + 180) / 360) * w
   const gabesY = ((90 - GABES_LAT) / 180) * h
 
-  // Large pulsing red glow around Gabès
+  // Large glow
   const glow = ctx.createRadialGradient(gabesX, gabesY, 4, gabesX, gabesY, 70)
   glow.addColorStop(0, 'rgba(239, 68, 68, 0.9)')
   glow.addColorStop(0.15, 'rgba(239, 68, 68, 0.5)')
@@ -166,7 +157,7 @@ function createEarthTexture(): THREE.CanvasTexture {
   ctx.arc(gabesX, gabesY, 70, 0, Math.PI * 2)
   ctx.fill()
 
-  // Red dot (bigger)
+  // Red dot
   ctx.fillStyle = '#ef4444'
   ctx.beginPath()
   ctx.arc(gabesX, gabesY, 10, 0, Math.PI * 2)
@@ -184,7 +175,7 @@ function createEarthTexture(): THREE.CanvasTexture {
 }
 
 /* ──────────────────────────────────────────── */
-/*  Emissive (glow) Texture for Globe           */
+/*  Emissive Texture (Gabes glow)               */
 /* ──────────────────────────────────────────── */
 
 function createEmissiveTexture(): THREE.CanvasTexture {
@@ -194,15 +185,14 @@ function createEmissiveTexture(): THREE.CanvasTexture {
   canvas.height = h
   const ctx = canvas.getContext('2d')!
 
-  // Black base (no emission for oceans)
   ctx.fillStyle = '#000000'
   ctx.fillRect(0, 0, w, h)
 
-  // Gabès emission hotspot
   const gabesX = ((GABES_LNG + 180) / 360) * w
   const gabesY = ((90 - GABES_LAT) / 180) * h
+
   const glow = ctx.createRadialGradient(gabesX, gabesY, 4, gabesX, gabesY, 80)
-  glow.addColorStop(0, 'rgba(239, 68, 68, 0.6)')
+  glow.addColorStop(0, 'rgba(239, 68, 68, 0.7)')
   glow.addColorStop(0.3, 'rgba(239, 68, 68, 0.2)')
   glow.addColorStop(1, 'rgba(239, 68, 68, 0)')
   ctx.fillStyle = glow
@@ -216,228 +206,239 @@ function createEmissiveTexture(): THREE.CanvasTexture {
 }
 
 /* ──────────────────────────────────────────── */
-/*  Globe Mesh                                   */
-/* ──────────────────────────────────────────── */
-
-function GlobeMesh({ phase, animProgress }: { phase: 'spin' | 'rotate' | 'zoom'; animProgress: number }) {
-  const meshRef = useRef<THREE.Mesh>(null)
-  const [texture, setTexture] = useState<THREE.CanvasTexture | null>(null)
-  const [emissiveTex, setEmissiveTex] = useState<THREE.CanvasTexture | null>(null)
-
-  useEffect(() => {
-    try {
-      const t = createEarthTexture()
-      const e = createEmissiveTexture()
-      setTexture(t)
-      setEmissiveTex(e)
-    } catch (e) {
-      console.error('Failed to create earth texture:', e)
-    }
-  }, [])
-
-  // Target rotation to face Gabès toward the camera
-  const targetRotY = -(GABES_LNG * Math.PI) / 180 + Math.PI * 0.5
-  const targetRotX = (GABES_LAT * Math.PI) / 180 * 0.35
-  const startRotY = -0.5
-  const startRotX = 0.15
-
-  useFrame((_, delta) => {
-    const mesh = meshRef.current
-    if (!mesh) return
-
-    if (phase === 'spin') {
-      mesh.rotation.y += delta * 0.15
-    } else {
-      const lerpSpeed = delta * 1.8
-      const destY = startRotY + (targetRotY - startRotY) * animProgress
-      const destX = startRotX + (targetRotX - startRotX) * animProgress
-      mesh.rotation.y += (destY - mesh.rotation.y) * lerpSpeed
-      mesh.rotation.x += (destX - mesh.rotation.x) * lerpSpeed
-    }
-  })
-
-  return (
-    <mesh ref={meshRef} rotation={[startRotX, startRotY, 0]}>
-      <sphereGeometry args={[2, 64, 64]} />
-      <meshStandardMaterial
-        map={texture}
-        emissiveMap={emissiveTex}
-        emissive={texture ? '#ff4444' : '#000000'}
-        emissiveIntensity={0.5}
-        color={texture ? '#ffffff' : '#222222'}
-        roughness={0.75}
-        metalness={0.05}
-      />
-    </mesh>
-  )
-}
-
-/* ──────────────────────────────────────────── */
-/*  Atmosphere Glow (Red Rim)                    */
-/* ──────────────────────────────────────────── */
-
-function Atmosphere() {
-  return (
-    <>
-      {/* Outer red atmosphere */}
-      <mesh scale={[2.12, 2.12, 2.12]}>
-        <sphereGeometry args={[2, 64, 64]} />
-        <meshBasicMaterial color="#3a0808" transparent opacity={0.15} side={THREE.BackSide} />
-      </mesh>
-      {/* Inner subtle purple atmosphere */}
-      <mesh scale={[2.05, 2.05, 2.05]}>
-        <sphereGeometry args={[2, 64, 64]} />
-        <meshBasicMaterial color="#1a0a30" transparent opacity={0.08} side={THREE.BackSide} />
-      </mesh>
-    </>
-  )
-}
-
-/* ──────────────────────────────────────────── */
-/*  Camera Controller                            */
-/* ──────────────────────────────────────────── */
-
-function CameraController({ zoomLevel }: { zoomLevel: number }) {
-  const { camera } = useThree()
-
-  useFrame((_, delta) => {
-    const targetZ = 6 - zoomLevel * 2.5
-    camera.position.z += (targetZ - camera.position.z) * delta * 0.8
-  })
-
-  return null
-}
-
-/* ──────────────────────────────────────────── */
-/*  Starfield                                    */
-/* ──────────────────────────────────────────── */
-
-function Stars() {
-  const geometry = useMemo(() => {
-    const geo = new THREE.BufferGeometry()
-    const count = 800
-    const positions = new Float32Array(count * 3)
-    for (let i = 0; i < count; i++) {
-      const theta = Math.random() * Math.PI * 2
-      const phi = Math.acos(2 * Math.random() - 1)
-      const r = 12 + Math.random() * 8
-      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta)
-      positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
-      positions[i * 3 + 2] = r * Math.cos(phi)
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-    return geo
-  }, [])
-
-  return (
-    <points geometry={geometry}>
-      <pointsMaterial color="#ffffff" size={0.05} sizeAttenuation transparent opacity={0.5} />
-    </points>
-  )
-}
-
-/* ──────────────────────────────────────────── */
-/*  Scene Content (inside Canvas)                */
-/* ──────────────────────────────────────────── */
-
-function SceneContent({ phase, animProgress, zoomLevel }: {
-  phase: 'spin' | 'rotate' | 'zoom'
-  animProgress: number
-  zoomLevel: number
-}) {
-  return (
-    <>
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[5, 3, 5]} intensity={1.0} />
-      <directionalLight position={[-3, -1, -3]} intensity={0.15} color="#4444ff" />
-      <pointLight position={[0, 2, 4]} intensity={0.3} color="#ff2222" />
-      <GlobeMesh phase={phase} animProgress={animProgress} />
-      <Atmosphere />
-      <CameraController zoomLevel={zoomLevel} />
-      <Stars />
-    </>
-  )
-}
-
-/* ──────────────────────────────────────────── */
-/*  Main Export — scroll-triggered animation     */
+/*  Main Globe Component (Vanilla Three.js)      */
 /* ──────────────────────────────────────────── */
 
 export default function GlobeScene({ isInView }: { isInView: boolean }) {
-  const [phase, setPhase] = useState<'spin' | 'rotate' | 'zoom'>('spin')
-  const [animProgress, setAnimProgress] = useState(0)
-  const [zoomLevel, setZoomLevel] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const sceneRef = useRef<{
+    renderer: THREE.WebGLRenderer
+    scene: THREE.Scene
+    camera: THREE.PerspectiveCamera
+    globe: THREE.Mesh
+    atmosphere: THREE.Mesh
+    animPhase: 'spin' | 'rotate' | 'zoom'
+    animProgress: number
+    zoomLevel: number
+    startTime: number
+    frameId: number
+  } | null>(null)
 
+  // Initialize Three.js scene
   useEffect(() => {
-    if (!isInView) return
+    const container = containerRef.current
+    if (!container) return
 
-    // Phase 1: Spinning on mount
-    // Phase 2: After 1.5s, rotate to Tunisia
-    const t1 = setTimeout(() => {
-      setPhase('rotate')
-      let progress = 0
-      const rotateInterval = setInterval(() => {
-        progress += 0.015
-        if (progress >= 1) {
-          progress = 1
-          clearInterval(rotateInterval)
-        }
-        setAnimProgress(progress)
-      }, 40)
-    }, 1500)
+    const width = container.clientWidth
+    const height = container.clientHeight
 
-    // Phase 3: After rotation completes (~5.5s), zoom in
-    const t2 = setTimeout(() => {
-      setPhase('zoom')
-      let zoom = 0
-      const zoomInterval = setInterval(() => {
-        zoom += 0.02
-        if (zoom >= 1) {
-          zoom = 1
-          clearInterval(zoomInterval)
+    if (width === 0 || height === 0) return
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    renderer.setSize(width, height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    renderer.setClearColor(0x000000, 0)
+    container.appendChild(renderer.domElement)
+
+    // Scene
+    const scene = new THREE.Scene()
+
+    // Camera
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100)
+    camera.position.set(0, 0.5, 6)
+
+    // Lights
+    const ambient = new THREE.AmbientLight(0xffffff, 0.4)
+    scene.add(ambient)
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.0)
+    dirLight.position.set(5, 3, 5)
+    scene.add(dirLight)
+
+    const fillLight = new THREE.DirectionalLight(0x4444ff, 0.15)
+    fillLight.position.set(-3, -1, -3)
+    scene.add(fillLight)
+
+    const pointLight = new THREE.PointLight(0xff2222, 0.3, 10)
+    pointLight.position.set(0, 2, 4)
+    scene.add(pointLight)
+
+    // Globe
+    const earthTexture = createEarthTexture()
+    const emissiveTexture = createEmissiveTexture()
+    const globeGeo = new THREE.SphereGeometry(2, 64, 64)
+    const globeMat = new THREE.MeshStandardMaterial({
+      map: earthTexture,
+      emissiveMap: emissiveTexture,
+      emissive: new THREE.Color('#ff4444'),
+      emissiveIntensity: 0.5,
+      roughness: 0.75,
+      metalness: 0.05,
+    })
+    const globe = new THREE.Mesh(globeGeo, globeMat)
+    globe.rotation.set(0.15, -0.5, 0)
+    scene.add(globe)
+
+    // Atmosphere
+    const atmoGeo = new THREE.SphereGeometry(2, 64, 64)
+    const atmoMat = new THREE.MeshBasicMaterial({
+      color: 0x3a0808,
+      transparent: true,
+      opacity: 0.15,
+      side: THREE.BackSide,
+    })
+    const atmosphere = new THREE.Mesh(atmoGeo, atmoMat)
+    atmosphere.scale.setScalar(2.1)
+    scene.add(atmosphere)
+
+    // Stars
+    const starsGeo = new THREE.BufferGeometry()
+    const starCount = 800
+    const starPositions = new Float32Array(starCount * 3)
+    for (let i = 0; i < starCount; i++) {
+      const theta = Math.random() * Math.PI * 2
+      const phi = Math.acos(2 * Math.random() - 1)
+      const r = 12 + Math.random() * 8
+      starPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta)
+      starPositions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
+      starPositions[i * 3 + 2] = r * Math.cos(phi)
+    }
+    starsGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3))
+    const starsMat = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.05,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.5,
+    })
+    const stars = new THREE.Points(starsGeo, starsMat)
+    scene.add(stars)
+
+    // Store refs
+    sceneRef.current = {
+      renderer,
+      scene,
+      camera,
+      globe,
+      atmosphere,
+      animPhase: 'spin',
+      animProgress: 0,
+      zoomLevel: 0,
+      startTime: Date.now(),
+      frameId: 0,
+    }
+
+    // Handle resize
+    const handleResize = () => {
+      const w = container.clientWidth
+      const h = container.clientHeight
+      if (w === 0 || h === 0) return
+      camera.aspect = w / h
+      camera.updateProjectionMatrix()
+      renderer.setSize(w, h)
+    }
+    window.addEventListener('resize', handleResize)
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      const s = sceneRef.current
+      if (s) {
+        cancelAnimationFrame(s.frameId)
+        s.renderer.dispose()
+        if (container.contains(s.renderer.domElement)) {
+          container.removeChild(s.renderer.domElement)
         }
-        setZoomLevel(zoom)
-      }, 40)
-    }, 5500)
+      }
+      sceneRef.current = null
+    }
+  }, [])
+
+  // Animation loop
+  useEffect(() => {
+    const s = sceneRef.current
+    if (!s) return
+
+    const targetRotY = -(GABES_LNG * Math.PI) / 180 + Math.PI * 0.5
+    const targetRotX = (GABES_LAT * Math.PI) / 180 * 0.35
+    const startRotY = -0.5
+    const startRotX = 0.15
+
+    let lastTime = performance.now()
+
+    const animate = (time: number) => {
+      const delta = Math.min((time - lastTime) / 1000, 0.1)
+      lastTime = time
+
+      const elapsed = (Date.now() - s.startTime) / 1000
+
+      if (isInView) {
+        // Phase transitions
+        if (elapsed < 1.5) {
+          s.animPhase = 'spin'
+        } else if (elapsed < 5.5) {
+          s.animPhase = 'rotate'
+          s.animProgress = Math.min(1, (elapsed - 1.5) / 4.0)
+        } else {
+          s.animPhase = 'zoom'
+          s.animProgress = 1
+          s.zoomLevel = Math.min(1, (elapsed - 5.5) / 2.0)
+        }
+      }
+
+      // Globe rotation
+      if (s.animPhase === 'spin') {
+        s.globe.rotation.y += delta * 0.15
+      } else {
+        const lerpSpeed = delta * 1.8
+        const destY = startRotY + (targetRotY - startRotY) * s.animProgress
+        const destX = startRotX + (targetRotX - startRotX) * s.animProgress
+        s.globe.rotation.y += (destY - s.globe.rotation.y) * lerpSpeed
+        s.globe.rotation.x += (destX - s.globe.rotation.x) * lerpSpeed
+      }
+
+      // Camera zoom
+      const targetZ = 6 - s.zoomLevel * 2.5
+      s.camera.position.z += (targetZ - s.camera.position.z) * delta * 0.8
+
+      s.renderer.render(s.scene, s.camera)
+      s.frameId = requestAnimationFrame(animate)
+    }
+
+    s.frameId = requestAnimationFrame(animate)
 
     return () => {
-      clearTimeout(t1)
-      clearTimeout(t2)
+      cancelAnimationFrame(s.frameId)
     }
   }, [isInView])
 
-  return (
-    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <Canvas
-        camera={{ position: [0, 0.5, 6], fov: 40 }}
-        style={{ background: 'transparent' }}
-        gl={{ alpha: true, antialias: true }}
-        onCreated={({ gl }) => {
-          gl.setClearColor(0x000000, 0)
-        }}
-      >
-        <SceneContent phase={phase} animProgress={animProgress} zoomLevel={zoomLevel} />
-      </Canvas>
+  // Calculate label visibility from animation phase
+  const elapsed = sceneRef.current ? (Date.now() - sceneRef.current.startTime) / 1000 : 0
+  const showLabel = isInView && elapsed > 6.7
+  const labelOpacity = showLabel ? Math.min(1, (elapsed - 6.7) * 1.5) : 0
 
-      {/* Gabès label — fades in after zoom starts */}
-      {zoomLevel > 0.4 && (
+  return (
+    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative' }}>
+      {/* Gabès label */}
+      {labelOpacity > 0 && (
         <div style={{
           position: 'absolute',
           bottom: '26%',
           right: '16%',
           zIndex: 10,
           pointerEvents: 'none',
-          opacity: Math.min(1, (zoomLevel - 0.4) * 1.7),
+          opacity: labelOpacity,
           transition: 'opacity 0.3s ease',
         }}>
           <div style={{
             color: '#ef4444',
             fontSize: '12px',
             letterSpacing: '0.18em',
-            textTransform: 'uppercase' as const,
+            textTransform: 'uppercase',
             fontWeight: 700,
             textShadow: '0 0 14px rgba(239,68,68,0.6), 0 0 35px rgba(239,68,68,0.2)',
-            whiteSpace: 'nowrap' as const,
+            whiteSpace: 'nowrap',
           }}>
             Gabes, Tunisia
           </div>
